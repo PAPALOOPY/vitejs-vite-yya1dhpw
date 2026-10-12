@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
-  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 너의 고민을 해결할게');
+  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [announcement, setAnnouncement] = useState(() => localStorage.getItem('announcement') || '방문해 주셔서 감사합니다.\n이곳은 기밀이 철저히 보장되는 탐정 사무소입니다.\n\n허위 의뢰는 정중히 사양합니다.');
   
@@ -96,7 +96,6 @@ export default function App() {
   };
 
   const submitReply = () => {
-    // 💡 에러 해결: p에 any 타입 명시
     const updatedPosts = posts.map((p: any) => 
       p.id === selectedPost.id ? { ...p, reply: replyContent } : p
     );
@@ -107,7 +106,6 @@ export default function App() {
 
   const deletePost = (id: number) => {
     if (window.confirm('이 사건 기록을 영구적으로 말소하시겠습니까? (복구 불가)')) {
-      // 💡 에러 해결: p에 any 타입 명시
       const updatedPosts = posts.filter((p: any) => p.id !== id);
       setPosts(updatedPosts);
       navigate('list');
@@ -137,7 +135,7 @@ export default function App() {
         `}
       </style>
 
-      <div className={`min-h-screen ${bgClass} ${textClass} detective-font relative selection:bg-amber-900/40`}>
+      <div className={`min-h-screen w-full overflow-x-hidden ${bgClass} ${textClass} detective-font relative selection:bg-amber-900/40`}>
         {isDark && <div className="absolute inset-0 bg-vignette pointer-events-none"></div>}
 
         <div className="max-w-4xl mx-auto p-6 md:p-10 relative z-10">
@@ -163,7 +161,7 @@ export default function App() {
 
           {viewMode === 'list' && (
             <div>
-              <div className={`mb-10 p-6 md:p-8 border ${cardClass} luxury-shadow relative overflow-hidden`}>
+              <div className={`mb-12 p-6 md:p-8 border ${cardClass} luxury-shadow relative overflow-hidden`}>
                 <div className="absolute top-0 left-0 w-1 h-full bg-amber-700/50"></div>
                 <h3 className={`text-sm font-bold mb-4 tracking-widest ${accentText} flex items-center gap-2 uppercase`}>
                   <span>📢</span> 사무소 공지사항
@@ -173,24 +171,24 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h2 className="text-2xl font-bold tracking-widest uppercase">사건 기록부</h2>
+              {/* 💡 사건 기록부와 새 의뢰 접수 버튼을 중앙으로 정렬했습니다 */}
+              <div className="flex flex-col items-center justify-center mb-8 gap-3">
+                <h2 className="text-1xl font-bold tracking-widest uppercase text-stone-400">사건 기록부</h2>
                 <button 
                   onClick={() => navigate('write')} 
-                  className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-8 py-3 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0`}
+                  className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-10 py-4 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0 text-lg`}
                 >
                   ✉️ 새 의뢰 접수
                 </button>
               </div>
               
               <div className="space-y-4">
-                <div className="flex px-6 py-3 opacity-60 text-xs tracking-widest border-b border-stone-800 mb-5 uppercase">
+                <div className="flex px-6 py-1 opacity-90 text-xs tracking-widest border-b border-stone-400 mb-6 uppercase text-stone-200">
                   <span className="w-20">상태</span>
                   <span className="flex-1">사건명 (기밀)</span>
                   <span className="w-24 text-right">보안등급</span>
                 </div>
 
-                {/* 💡 에러 해결: post에 any 타입 명시 */}
                 {posts.map((post: any) => (
                   <div 
                     key={post.id} 
@@ -199,11 +197,11 @@ export default function App() {
                   >
                     <span className="w-20">
                       {post.reply ? 
-                        <span className="text-xs bg-stone-800 text-stone-400 px-3 py-1 border border-stone-700">종결</span> : 
+                        <span className="text-xs bg-stone-800 text-stone-300 px-1 py-1 border border-stone-500">종결</span> : 
                         <span className="text-xs bg-amber-900/20 text-amber-500/80 border border-amber-900/30 px-3 py-1">수사중</span>
                       }
                     </span>
-                    <span className="flex-1 font-bold text-lg tracking-wide group-hover:text-amber-500/90 transition-colors">{post.title}</span>
+                    <span className="flex-1 font-bold text-lg tracking-wide group-hover:text-amber-500/80 transition-colors">{post.title}</span>
                     <span className="w-24 text-right opacity-60 text-sm">🔒 극비</span>
                   </div>
                 ))}
