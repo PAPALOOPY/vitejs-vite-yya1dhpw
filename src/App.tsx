@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
-  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
+  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 너의 고민을 해결할게');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [announcement, setAnnouncement] = useState(() => localStorage.getItem('announcement') || '방문해 주셔서 감사합니다.\n이곳은 기밀이 철저히 보장되는 탐정 사무소입니다.\n\n허위 의뢰는 정중히 사양합니다.');
   
@@ -24,6 +24,10 @@ export default function App() {
   const [viewMode, setViewMode] = useState('list');
   const [inputPassword, setInputPassword] = useState('');
   const [replyContent, setReplyContent] = useState('');
+
+  // 📄 페이지 관리를 위한 상태 (기본 1페이지, 한 페이지당 5개)
+  const [currentPage, setCurrentPage] = useState(1);
+  const POSTS_PER_PAGE = 5;
 
   useEffect(() => {
     localStorage.setItem('adminPassword', adminPassword);
@@ -74,6 +78,7 @@ export default function App() {
     const post = { id: Date.now(), ...newPost, reply: '' };
     setPosts([post, ...posts]);
     setNewPost({ title: '', content: '', password: '', phone: '', kakao: '' });
+    setCurrentPage(1); // 💡 새 의뢰 작성 시 1페이지로 이동
     navigate('list');
   };
 
@@ -120,6 +125,10 @@ export default function App() {
   const inputClass = isDark ? 'bg-[#0a0a0a] border-stone-700 text-stone-200' : 'bg-[#faf9f6] border-stone-300 text-stone-900';
   const accentText = isDark ? 'text-amber-600/80' : 'text-amber-800';
 
+  // 📄 현재 페이지에 표시할 게시글 목록 계산
+  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+  const currentPosts = posts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
+
   return (
     <>
       <style>
@@ -140,11 +149,12 @@ export default function App() {
 
         <div className="max-w-4xl mx-auto p-6 md:p-10 relative z-10">
           
+          {/* 💡 상단 메뉴 짤림 수정: break-keep 및 flex-wrap 추가, whitespace-nowrap 제거 */}
           <header className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 mb-12 border-b border-stone-700/50 pb-8">
-            <div className="cursor-pointer text-center md:text-left whitespace-nowrap" onClick={() => navigate('list')}>
-              <h1 className="text-4xl md:text-5xl font-extrabold tracking-widest text-stone-100 drop-shadow-md flex justify-center md:justify-start items-center gap-4">
-                <span className="text-4xl opacity-80">🕵🏻‍♂️</span> 
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-stone-200 to-stone-400">{siteTitle}</span>
+            <div className="cursor-pointer text-center md:text-left break-keep w-full md:w-auto" onClick={() => navigate('list')}>
+              <h1 className="text-4xl md:text-5xl font-extrabold tracking-widest text-stone-100 drop-shadow-md flex justify-center md:justify-start items-center gap-4 flex-wrap">
+                <span className="text-4xl opacity-80 shrink-0">🕵🏻‍♂️</span> 
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-stone-200 to-stone-400 leading-tight">{siteTitle}</span>
               </h1>
               <p className={`text-sm mt-4 ${accentText} italic tracking-widest`}>
                 "모든 불가능을 제외하고 남은 것, 그것이 아무리 믿기 힘들지라도 진실이다."
@@ -152,7 +162,7 @@ export default function App() {
             </div>
             
             {isAdmin && (
-              <div className="flex gap-6 font-bold text-sm whitespace-nowrap shrink-0">
+              <div className="flex gap-6 font-bold text-sm shrink-0 mt-4 md:mt-0">
                 <button onClick={() => navigate('settings')} className="text-stone-400 hover:text-amber-500 transition-colors uppercase tracking-widest text-xs">⚙️ 사무소 설정</button>
                 <button onClick={handleAdminLogout} className="text-stone-400 hover:text-red-400 transition-colors uppercase tracking-widest text-xs">👤 퇴근하기</button>
               </div>
@@ -171,7 +181,7 @@ export default function App() {
                 </p>
               </div>
 
-              {/* 💡 사건 기록부와 새 의뢰 접수 버튼을 중앙으로 정렬했습니다 */}
+              {/* 의뢰인님의 커스텀 디자인 그대로 유지 */}
               <div className="flex flex-col items-center justify-center mb-20 gap-3">
                 <h2 className="text-1xl font-bold tracking-widest uppercase text-stone-400"></h2>
                 <button 
@@ -189,7 +199,8 @@ export default function App() {
                   <span className="w-24 text-right">보안등급</span>
                 </div>
 
-                {posts.map((post: any) => (
+                {/* 💡 전체 글(posts) 대신 현재 페이지의 글(currentPosts)만 보여줍니다 */}
+                {currentPosts.map((post: any) => (
                   <div 
                     key={post.id} 
                     onClick={() => openPost(post)} 
@@ -211,6 +222,29 @@ export default function App() {
                   </div>
                 )}
               </div>
+
+              {/* 📄 하단 페이지 이동 버튼 */}
+              {posts.length > 0 && (
+                <div className="flex justify-center items-center gap-6 mt-12 mb-8">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="opacity-40 hover:opacity-100 disabled:opacity-10 text-stone-300 transition-opacity p-2 text-xl"
+                  >
+                    ◀
+                  </button>
+                  <span className="text-stone-400 font-bold tracking-widest text-sm">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="opacity-40 hover:opacity-100 disabled:opacity-10 text-stone-300 transition-opacity p-2 text-xl"
+                  >
+                    ▶
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
