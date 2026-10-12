@@ -9,11 +9,10 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminInput, setAdminInput] = useState(''); 
   
-  // 💾 의뢰 게시글도 브라우저 기억 장치에서 불러옵니다. (새로고침해도 안 날아감)
   const [posts, setPosts] = useState(() => {
     const savedPosts = localStorage.getItem('detectivePosts');
     if (savedPosts) {
-      return JSON.parse(savedPosts); // 저장된 글이 있으면 불러옵니다.
+      return JSON.parse(savedPosts); 
     }
     return [
       { id: 1, title: '첫 번째 의뢰건 (기밀)', content: '요즘 누군가 저를 미행하는 것 같습니다...', password: '1234', reply: '탐정이 사건에 착수했습니다. 안심하십시오.', phone: '', kakao: '' }
@@ -26,15 +25,38 @@ export default function App() {
   const [inputPassword, setInputPassword] = useState('');
   const [replyContent, setReplyContent] = useState('');
 
-  // 💾 설정이나 게시글이 변경될 때마다 영구 저장합니다.
+  // 💾 설정이나 게시글 영구 저장
   useEffect(() => {
     localStorage.setItem('adminPassword', adminPassword);
     localStorage.setItem('siteTitle', siteTitle);
     localStorage.setItem('theme', theme);
     localStorage.setItem('announcement', announcement);
-    // 게시글 목록은 배열 형태이므로 JSON 문자로 변환하여 저장합니다.
     localStorage.setItem('detectivePosts', JSON.stringify(posts));
   }, [adminPassword, siteTitle, theme, announcement, posts]);
+
+  // 🔄 브라우저 '뒤로 가기' 버튼 완벽 지원을 위한 마법의 코드
+  useEffect(() => {
+    // 처음에 홈페이지에 들어왔을 때 기본 상태를 기록합니다.
+    window.history.replaceState({ view: 'list' }, '', '');
+
+    // 사용자가 뒤로 가기를 눌렀을 때 실행되는 함수
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.view) {
+        setViewMode(e.state.view); // 기록된 이전 화면으로 돌려줍니다.
+      } else {
+        setViewMode('list'); // 꼬였을 땐 무조건 목록으로!
+      }
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 🚀 화면을 이동할 때마다 브라우저 방문 기록에 발자국을 남깁니다.
+  const navigate = (mode: string) => {
+    window.history.pushState({ view: mode }, '', '');
+    setViewMode(mode);
+  };
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +71,7 @@ export default function App() {
 
   const handleAdminLogout = () => {
     setIsAdmin(false);
-    setViewMode('list');
+    navigate('list');
   };
 
   const submitPost = (e: React.FormEvent) => {
@@ -58,22 +80,21 @@ export default function App() {
     const post = { id: Date.now(), ...newPost, reply: '' };
     setPosts([post, ...posts]);
     setNewPost({ title: '', content: '', password: '', phone: '', kakao: '' });
-    setViewMode('list');
+    navigate('list');
   };
 
   const openPost = (post: any) => {
+    setSelectedPost(post);
     if (isAdmin) {
-      setSelectedPost(post);
-      setViewMode('read');
+      navigate('read');
     } else {
-      setSelectedPost(post);
-      setViewMode('password-check');
+      navigate('password-check');
     }
   };
 
   const checkPassword = () => {
     if (inputPassword === selectedPost.password) {
-      setViewMode('read');
+      navigate('read');
       setInputPassword('');
     } else {
       alert('비밀번호가 일치하지 않습니다.');
@@ -89,12 +110,11 @@ export default function App() {
     setReplyContent('');
   };
 
-  // 🗑️ 관리자 전용 게시글 삭제 기능
   const deletePost = (id: number) => {
     if (window.confirm('이 사건 기록을 영구적으로 말소하시겠습니까? (복구 불가)')) {
       const updatedPosts = posts.filter(p => p.id !== id);
       setPosts(updatedPosts);
-      setViewMode('list');
+      navigate('list');
       setSelectedPost(null);
     }
   };
@@ -127,7 +147,7 @@ export default function App() {
         <div className="max-w-4xl mx-auto p-6 md:p-10 relative z-10">
           
           <header className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 mb-12 border-b border-stone-700/50 pb-8">
-            <div className="cursor-pointer text-center md:text-left whitespace-nowrap" onClick={() => setViewMode('list')}>
+            <div className="cursor-pointer text-center md:text-left whitespace-nowrap" onClick={() => navigate('list')}>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-widest text-stone-100 drop-shadow-md flex justify-center md:justify-start items-center gap-4">
                 <span className="text-4xl opacity-80">🕵🏻‍♂️</span> 
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-stone-200 to-stone-400">{siteTitle}</span>
@@ -139,7 +159,7 @@ export default function App() {
             
             {isAdmin && (
               <div className="flex gap-6 font-bold text-sm whitespace-nowrap shrink-0">
-                <button onClick={() => setViewMode('settings')} className="text-stone-400 hover:text-amber-500 transition-colors uppercase tracking-widest text-xs">⚙️ 사무소 설정</button>
+                <button onClick={() => navigate('settings')} className="text-stone-400 hover:text-amber-500 transition-colors uppercase tracking-widest text-xs">⚙️ 사무소 설정</button>
                 <button onClick={handleAdminLogout} className="text-stone-400 hover:text-red-400 transition-colors uppercase tracking-widest text-xs">👤 퇴근하기</button>
               </div>
             )}
@@ -160,15 +180,15 @@ export default function App() {
               <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <h2 className="text-2xl font-bold tracking-widest uppercase">사건 기록부</h2>
                 <button 
-                  onClick={() => setViewMode('write')} 
+                  onClick={() => navigate('write')} 
                   className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-8 py-3 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0`}
                 >
                   ✉️ 새 의뢰 접수
                 </button>
               </div>
               
-              <div className="space-y-4">
-                <div className="flex px-6 py-3 opacity-70 text-xs tracking-widest border-b border-stone-500 mb-1 uppercase">
+              <div className="space-y-2">
+                <div className="flex px-6 py-2 opacity-8 text-xs tracking-widest border-b border-stone-600 mb-3 uppercase">
                   <span className="w-20">상태</span>
                   <span className="flex-1">사건명 (기밀)</span>
                   <span className="w-24 text-right">보안등급</span>
@@ -182,12 +202,12 @@ export default function App() {
                   >
                     <span className="w-20">
                       {post.reply ? 
-                        <span className="text-xs bg-stone-800 text-stone-400 px-3 py-1 border border-stone-700">종결</span> : 
+                        <span className="text-xs bg-stone-800 text-stone-300 px-3 py-1 border border-stone-700">종결</span> : 
                         <span className="text-xs bg-amber-900/20 text-amber-500/80 border border-amber-900/30 px-3 py-1">수사중</span>
                       }
                     </span>
                     <span className="flex-1 font-bold text-lg tracking-wide group-hover:text-amber-500/90 transition-colors">{post.title}</span>
-                    <span className="w-24 text-right opacity-40 text-sm">🔒 극비</span>
+                    <span className="w-24 text-right opacity-60 text-sm">🔒 극비</span>
                   </div>
                 ))}
                 {posts.length === 0 && (
@@ -263,7 +283,7 @@ export default function App() {
                 </div>
 
                 <div className="flex justify-end gap-6 pt-8 border-t border-stone-800">
-                  <button type="button" onClick={() => setViewMode('list')} className="px-6 py-4 opacity-40 hover:opacity-100 font-bold tracking-widest text-sm uppercase transition-opacity whitespace-nowrap">취소</button>
+                  <button type="button" onClick={() => navigate('list')} className="px-6 py-4 opacity-40 hover:opacity-100 font-bold tracking-widest text-sm uppercase transition-opacity whitespace-nowrap">취소</button>
                   <button type="submit" className="bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-10 py-4 font-bold tracking-widest shadow-2xl border border-stone-700/50 uppercase transition-all whitespace-nowrap">의뢰서 봉인 및 제출</button>
                 </div>
               </form>
@@ -286,19 +306,17 @@ export default function App() {
                 />
                 <button onClick={checkPassword} className="bg-stone-900 text-amber-500/90 p-4 font-bold tracking-widest hover:bg-stone-800 transition-colors border border-stone-700/50 uppercase">문서 열람</button>
               </div>
-              <button onClick={() => setViewMode('list')} className="mt-10 text-xs opacity-30 hover:opacity-100 tracking-widest uppercase transition-opacity">돌아가기</button>
+              <button onClick={() => navigate('list')} className="mt-10 text-xs opacity-30 hover:opacity-100 tracking-widest uppercase transition-opacity">돌아가기</button>
             </div>
           )}
 
           {viewMode === 'read' && selectedPost && (
             <div className="max-w-4xl mx-auto">
-              {/* 목록으로 가기 버튼과 기록 말소(삭제) 버튼을 나란히 배치 */}
               <div className="flex justify-between items-center mb-8">
-                <button onClick={() => setViewMode('list')} className="opacity-40 hover:opacity-100 flex items-center gap-3 font-bold tracking-widest text-sm uppercase transition-opacity">
+                <button onClick={() => navigate('list')} className="opacity-40 hover:opacity-100 flex items-center gap-3 font-bold tracking-widest text-sm uppercase transition-opacity">
                   ⬅ 사건 목록으로
                 </button>
                 
-                {/* 관리자에게만 보이는 삭제 버튼 */}
                 {isAdmin && (
                   <button 
                     onClick={() => deletePost(selectedPost.id)} 
@@ -407,7 +425,7 @@ export default function App() {
                   </select>
                 </div>
                 
-                <button onClick={() => setViewMode('list')} className="bg-stone-900 hover:bg-stone-800 text-amber-500/90 w-full py-5 mt-10 font-bold tracking-widest shadow-2xl border border-stone-700/50 uppercase transition-colors">
+                <button onClick={() => navigate('list')} className="bg-stone-900 hover:bg-stone-800 text-amber-500/90 w-full py-5 mt-10 font-bold tracking-widest shadow-2xl border border-stone-700/50 uppercase transition-colors">
                   설정 저장 및 복귀
                 </button>
               </div>
