@@ -172,11 +172,11 @@ export default function App() {
               </div>
 
               {/* 💡 사건 기록부와 새 의뢰 접수 버튼을 중앙으로 정렬했습니다 */}
-              <div className="flex flex-col items-center justify-center mb-8 gap-3">
-                <h2 className="text-1xl font-bold tracking-widest uppercase text-stone-400">사건 기록부</h2>
+              <div className="flex flex-col items-center justify-center mb-20 gap-3">
+                <h2 className="text-1xl font-bold tracking-widest uppercase text-stone-400"></h2>
                 <button 
                   onClick={() => navigate('write')} 
-                  className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-10 py-4 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0 text-lg`}
+                  className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-6 py-4 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0 text-lg`}
                 >
                   ✉️ 새 의뢰 접수
                 </button>
@@ -201,7 +201,7 @@ export default function App() {
                         <span className="text-xs bg-amber-900/20 text-amber-500/80 border border-amber-900/30 px-3 py-1">수사중</span>
                       }
                     </span>
-                    <span className="flex-1 font-bold text-lg tracking-wide group-hover:text-amber-500/80 transition-colors">{post.title}</span>
+                    <span className="flex-1 font-bold text-sm tracking-wide group-hover:text-amber-500/80 transition-colors">{post.title}</span>
                     <span className="w-24 text-right opacity-60 text-sm">🔒 극비</span>
                   </div>
                 ))}
