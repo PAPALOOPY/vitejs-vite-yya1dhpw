@@ -2,28 +2,39 @@ import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
-  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
+  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 너의 고민을 해결할게');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [announcement, setAnnouncement] = useState(() => localStorage.getItem('announcement') || '방문해 주셔서 감사합니다.\n이곳은 기밀이 철저히 보장되는 탐정 사무소입니다.\n\n허위 의뢰는 정중히 사양합니다.');
   
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminInput, setAdminInput] = useState(''); 
   
-  const [posts, setPosts] = useState([
-    { id: 1, title: '첫 번째 의뢰건 (기밀)', content: '요즘 누군가 저를 미행하는 것 같습니다...', password: '1234', reply: '탐정이 사건에 착수했습니다. 안심하십시오.', phone: '', kakao: '' }
-  ]);
+  // 💾 의뢰 게시글도 브라우저 기억 장치에서 불러옵니다. (새로고침해도 안 날아감)
+  const [posts, setPosts] = useState(() => {
+    const savedPosts = localStorage.getItem('detectivePosts');
+    if (savedPosts) {
+      return JSON.parse(savedPosts); // 저장된 글이 있으면 불러옵니다.
+    }
+    return [
+      { id: 1, title: '첫 번째 의뢰건 (기밀)', content: '요즘 누군가 저를 미행하는 것 같습니다...', password: '1234', reply: '탐정이 사건에 착수했습니다. 안심하십시오.', phone: '', kakao: '' }
+    ];
+  });
+  
   const [newPost, setNewPost] = useState({ title: '', content: '', password: '', phone: '', kakao: '' });
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [viewMode, setViewMode] = useState('list');
   const [inputPassword, setInputPassword] = useState('');
   const [replyContent, setReplyContent] = useState('');
 
+  // 💾 설정이나 게시글이 변경될 때마다 영구 저장합니다.
   useEffect(() => {
     localStorage.setItem('adminPassword', adminPassword);
     localStorage.setItem('siteTitle', siteTitle);
     localStorage.setItem('theme', theme);
     localStorage.setItem('announcement', announcement);
-  }, [adminPassword, siteTitle, theme, announcement]);
+    // 게시글 목록은 배열 형태이므로 JSON 문자로 변환하여 저장합니다.
+    localStorage.setItem('detectivePosts', JSON.stringify(posts));
+  }, [adminPassword, siteTitle, theme, announcement, posts]);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +87,16 @@ export default function App() {
     setPosts(updatedPosts);
     setSelectedPost({ ...selectedPost, reply: replyContent });
     setReplyContent('');
+  };
+
+  // 🗑️ 관리자 전용 게시글 삭제 기능
+  const deletePost = (id: number) => {
+    if (window.confirm('이 사건 기록을 영구적으로 말소하시겠습니까? (복구 불가)')) {
+      const updatedPosts = posts.filter(p => p.id !== id);
+      setPosts(updatedPosts);
+      setViewMode('list');
+      setSelectedPost(null);
+    }
   };
 
   const isDark = theme === 'dark';
@@ -147,7 +168,7 @@ export default function App() {
               </div>
               
               <div className="space-y-4">
-                <div className="flex px-6 py-3 opacity-40 text-xs tracking-widest border-b border-stone-800 mb-6 uppercase">
+                <div className="flex px-6 py-3 opacity-70 text-xs tracking-widest border-b border-stone-500 mb-1 uppercase">
                   <span className="w-20">상태</span>
                   <span className="flex-1">사건명 (기밀)</span>
                   <span className="w-24 text-right">보안등급</span>
@@ -180,7 +201,6 @@ export default function App() {
 
           {viewMode === 'write' && (
             <div className="max-w-3xl mx-auto">
-              {/* 기밀 의뢰서 작성 글자색을 text-stone-200으로 변경하여 눈에 잘 띄게 만듦 */}
               <h2 className="text-3xl font-bold mb-10 text-center border-b border-stone-800 pb-6 tracking-widest text-stone-200">기밀 의뢰서 작성</h2>
               
               <form onSubmit={submitPost} className="space-y-10">
@@ -208,7 +228,6 @@ export default function App() {
                   />
                 </div>
 
-                {/* 붉은색 글씨 선명하게 개선 및 연락처 입력란 추가 */}
                 <div className="bg-[#120a0a] p-8 border border-red-900/30 luxury-shadow">
                   <label className="block text-sm tracking-widest font-bold text-red-500 mb-3 uppercase">의뢰서 열람 비밀번호</label>
                   <p className="text-xs opacity-80 mb-5 text-red-400 tracking-wider">※ 본 의뢰서를 다시 확인하거나 탐정의 답변을 열람할 때 필요합니다.</p>
@@ -221,7 +240,6 @@ export default function App() {
                     className={`w-full max-w-sm p-4 border ${inputClass} focus:outline-none focus:border-red-900/50 bg-[#0a0505]`} 
                   />
 
-                  {/* 연락처 추가 영역 */}
                   <div className="mt-8 pt-8 border-t border-red-900/20">
                     <label className="block text-sm tracking-widest font-bold text-stone-300 mb-3 uppercase">회신 받으실 연락처 (선택)</label>
                     <p className="text-xs opacity-60 mb-5 text-stone-400 tracking-wider">※ 탐정의 은밀한 연락을 원하신다면 편하신 곳에 남겨주십시오.</p>
@@ -274,16 +292,28 @@ export default function App() {
 
           {viewMode === 'read' && selectedPost && (
             <div className="max-w-4xl mx-auto">
-              <button onClick={() => setViewMode('list')} className="mb-8 opacity-40 hover:opacity-100 flex items-center gap-3 font-bold tracking-widest text-sm uppercase transition-opacity">
-                ⬅ 사건 목록으로
-              </button>
+              {/* 목록으로 가기 버튼과 기록 말소(삭제) 버튼을 나란히 배치 */}
+              <div className="flex justify-between items-center mb-8">
+                <button onClick={() => setViewMode('list')} className="opacity-40 hover:opacity-100 flex items-center gap-3 font-bold tracking-widest text-sm uppercase transition-opacity">
+                  ⬅ 사건 목록으로
+                </button>
+                
+                {/* 관리자에게만 보이는 삭제 버튼 */}
+                {isAdmin && (
+                  <button 
+                    onClick={() => deletePost(selectedPost.id)} 
+                    className="text-red-500/80 hover:text-red-400 font-bold tracking-widest text-sm uppercase transition-colors flex items-center gap-2"
+                  >
+                    🗑️ 기록 말소
+                  </button>
+                )}
+              </div>
               
               <article className={`p-10 md:p-16 border ${cardClass} luxury-shadow relative bg-[#0f0f0f]`}>
                 <div className="absolute top-0 right-0 p-6 opacity-10 text-4xl font-black italic tracking-tighter">CONFIDENTIAL</div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold mb-8 border-b border-stone-800 pb-6 pr-12 tracking-wide leading-snug text-stone-200">{selectedPost.title}</h2>
                 
-                {/* 관리자 모드일 때만 보이는 의뢰인 연락처 */}
                 {isAdmin && (selectedPost.phone || selectedPost.kakao) && (
                   <div className="mb-8 p-6 bg-[#0a0505] border border-amber-900/30 text-stone-300 text-sm tracking-widest">
                     <div className="font-bold text-amber-600/80 mb-4 flex items-center gap-2">
