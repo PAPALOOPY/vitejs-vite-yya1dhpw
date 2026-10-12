@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 export default function App() {
-  // 💾 브라우저 기억 장치에서 설정값을 불러옵니다. (공지사항 추가됨)
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
   const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
@@ -11,15 +10,14 @@ export default function App() {
   const [adminInput, setAdminInput] = useState(''); 
   
   const [posts, setPosts] = useState([
-    { id: 1, title: '첫 번째 의뢰건 (기밀)', content: '요즘 누군가 저를 미행하는 것 같습니다...', password: '1234', reply: '탐정이 사건에 착수했습니다. 안심하십시오.' }
+    { id: 1, title: '첫 번째 의뢰건 (기밀)', content: '요즘 누군가 저를 미행하는 것 같습니다...', password: '1234', reply: '탐정이 사건에 착수했습니다. 안심하십시오.', phone: '', kakao: '' }
   ]);
-  const [newPost, setNewPost] = useState({ title: '', content: '', password: '' });
+  const [newPost, setNewPost] = useState({ title: '', content: '', password: '', phone: '', kakao: '' });
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [viewMode, setViewMode] = useState('list');
   const [inputPassword, setInputPassword] = useState('');
   const [replyContent, setReplyContent] = useState('');
 
-  // 💾 설정이 변경될 때마다 브라우저 기억 장치에 자동으로 영구 저장합니다.
   useEffect(() => {
     localStorage.setItem('adminPassword', adminPassword);
     localStorage.setItem('siteTitle', siteTitle);
@@ -27,7 +25,6 @@ export default function App() {
     localStorage.setItem('announcement', announcement);
   }, [adminPassword, siteTitle, theme, announcement]);
 
-  // 🕵️‍♂️ 숨겨진 로그인 처리 (엔터키 쳤을 때 작동)
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (adminInput === adminPassword) {
@@ -35,7 +32,7 @@ export default function App() {
       setAdminInput('');
       alert('관리자(탐정) 모드로 전환되었습니다.');
     } else {
-      setAdminInput(''); // 틀리면 조용히 입력값만 지웁니다.
+      setAdminInput('');
     }
   };
 
@@ -46,10 +43,10 @@ export default function App() {
 
   const submitPost = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPost.title || !newPost.content || !newPost.password) return alert('모든 항목을 기입해 주십시오.');
+    if (!newPost.title || !newPost.content || !newPost.password) return alert('모든 필수 항목을 기입해 주십시오.');
     const post = { id: Date.now(), ...newPost, reply: '' };
     setPosts([post, ...posts]);
-    setNewPost({ title: '', content: '', password: '' });
+    setNewPost({ title: '', content: '', password: '', phone: '', kakao: '' });
     setViewMode('list');
   };
 
@@ -81,7 +78,6 @@ export default function App() {
     setReplyContent('');
   };
 
-  // 🎨 고급 럭셔리 테마 색상 설정
   const isDark = theme === 'dark';
   const bgClass = isDark ? 'bg-[#0c0c0c]' : 'bg-[#f4f1ea]';
   const textClass = isDark ? 'text-stone-300' : 'text-stone-800';
@@ -109,7 +105,6 @@ export default function App() {
 
         <div className="max-w-4xl mx-auto p-6 md:p-10 relative z-10">
           
-          {/* 헤더 */}
           <header className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 mb-12 border-b border-stone-700/50 pb-8">
             <div className="cursor-pointer text-center md:text-left whitespace-nowrap" onClick={() => setViewMode('list')}>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-widest text-stone-100 drop-shadow-md flex justify-center md:justify-start items-center gap-4">
@@ -129,16 +124,13 @@ export default function App() {
             )}
           </header>
 
-          {/* 게시판 목록 & 공지사항 */}
           {viewMode === 'list' && (
             <div>
-              {/* 📢 공지사항 영역 (새 의뢰 접수 버튼 위) */}
               <div className={`mb-10 p-6 md:p-8 border ${cardClass} luxury-shadow relative overflow-hidden`}>
                 <div className="absolute top-0 left-0 w-1 h-full bg-amber-700/50"></div>
                 <h3 className={`text-sm font-bold mb-4 tracking-widest ${accentText} flex items-center gap-2 uppercase`}>
                   <span>📢</span> 사무소 공지사항
                 </h3>
-                {/* whitespace-pre-wrap 속성으로 줄바꿈을 완벽하게 유지합니다 */}
                 <p className="whitespace-pre-wrap text-sm md:text-base leading-relaxed opacity-80 font-light text-stone-300">
                   {announcement}
                 </p>
@@ -186,10 +178,10 @@ export default function App() {
             </div>
           )}
 
-          {/* 글쓰기 */}
           {viewMode === 'write' && (
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-10 text-center border-b border-stone-800 pb-6 tracking-widest">기밀 의뢰서 작성</h2>
+              {/* 기밀 의뢰서 작성 글자색을 text-stone-200으로 변경하여 눈에 잘 띄게 만듦 */}
+              <h2 className="text-3xl font-bold mb-10 text-center border-b border-stone-800 pb-6 tracking-widest text-stone-200">기밀 의뢰서 작성</h2>
               
               <form onSubmit={submitPost} className="space-y-10">
                 <div>
@@ -206,7 +198,7 @@ export default function App() {
 
                 <div>
                   <label className={`block text-sm tracking-widest font-bold mb-3 ${accentText} uppercase`}>사건 상세 정황</label>
-                  <p className="text-xs opacity-40 mb-3 tracking-wider">※ 육하원칙에 따라 자세히 기재해주시면 수사에 큰 도움이 됩니다.</p>
+                  <p className="text-xs opacity-40 mb-3 tracking-wider text-stone-300">※ 육하원칙에 따라 자세히 기재해주시면 수사에 큰 도움이 됩니다.</p>
                   <textarea 
                     placeholder="이곳에 기밀 내용을 작성하십시오. 철저히 비밀이 보장됩니다." 
                     required 
@@ -216,9 +208,10 @@ export default function App() {
                   />
                 </div>
 
-                <div className="bg-[#120a0a] p-8 border border-red-900/20 luxury-shadow">
-                  <label className="block text-sm tracking-widest font-bold text-red-800/80 mb-3 uppercase">의뢰서 열람 비밀번호</label>
-                  <p className="text-xs opacity-50 mb-5 text-red-700/60 tracking-wider">※ 본 의뢰서를 다시 확인하거나 탐정의 답변을 열람할 때 필요합니다.</p>
+                {/* 붉은색 글씨 선명하게 개선 및 연락처 입력란 추가 */}
+                <div className="bg-[#120a0a] p-8 border border-red-900/30 luxury-shadow">
+                  <label className="block text-sm tracking-widest font-bold text-red-500 mb-3 uppercase">의뢰서 열람 비밀번호</label>
+                  <p className="text-xs opacity-80 mb-5 text-red-400 tracking-wider">※ 본 의뢰서를 다시 확인하거나 탐정의 답변을 열람할 때 필요합니다.</p>
                   <input 
                     type="password" 
                     placeholder="숫자/문자 등 자유롭게 설정" 
@@ -227,6 +220,28 @@ export default function App() {
                     onChange={e => setNewPost({...newPost, password: e.target.value})} 
                     className={`w-full max-w-sm p-4 border ${inputClass} focus:outline-none focus:border-red-900/50 bg-[#0a0505]`} 
                   />
+
+                  {/* 연락처 추가 영역 */}
+                  <div className="mt-8 pt-8 border-t border-red-900/20">
+                    <label className="block text-sm tracking-widest font-bold text-stone-300 mb-3 uppercase">회신 받으실 연락처 (선택)</label>
+                    <p className="text-xs opacity-60 mb-5 text-stone-400 tracking-wider">※ 탐정의 은밀한 연락을 원하신다면 편하신 곳에 남겨주십시오.</p>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <input 
+                        type="text" 
+                        placeholder="전화번호" 
+                        value={newPost.phone} 
+                        onChange={e => setNewPost({...newPost, phone: e.target.value})} 
+                        className={`w-full p-4 border ${inputClass} focus:outline-none focus:border-amber-700/50 bg-[#0a0505] text-sm`} 
+                      />
+                      <input 
+                        type="text" 
+                        placeholder="카카오톡 아이디" 
+                        value={newPost.kakao} 
+                        onChange={e => setNewPost({...newPost, kakao: e.target.value})} 
+                        className={`w-full p-4 border ${inputClass} focus:outline-none focus:border-amber-700/50 bg-[#0a0505] text-sm`} 
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-6 pt-8 border-t border-stone-800">
@@ -237,7 +252,6 @@ export default function App() {
             </div>
           )}
 
-          {/* 비밀번호 확인 */}
           {viewMode === 'password-check' && (
             <div className="max-w-lg mx-auto mt-24 p-12 border border-stone-800 text-center luxury-shadow relative bg-[#0f0f0f]">
               <div className="text-5xl mb-8 opacity-60 text-amber-600/50">🗝️</div>
@@ -258,7 +272,6 @@ export default function App() {
             </div>
           )}
 
-          {/* 글 읽기 */}
           {viewMode === 'read' && selectedPost && (
             <div className="max-w-4xl mx-auto">
               <button onClick={() => setViewMode('list')} className="mb-8 opacity-40 hover:opacity-100 flex items-center gap-3 font-bold tracking-widest text-sm uppercase transition-opacity">
@@ -268,12 +281,25 @@ export default function App() {
               <article className={`p-10 md:p-16 border ${cardClass} luxury-shadow relative bg-[#0f0f0f]`}>
                 <div className="absolute top-0 right-0 p-6 opacity-10 text-4xl font-black italic tracking-tighter">CONFIDENTIAL</div>
                 
-                <h2 className="text-3xl md:text-4xl font-bold mb-8 border-b border-stone-800 pb-6 pr-12 tracking-wide leading-snug">{selectedPost.title}</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-8 border-b border-stone-800 pb-6 pr-12 tracking-wide leading-snug text-stone-200">{selectedPost.title}</h2>
+                
+                {/* 관리자 모드일 때만 보이는 의뢰인 연락처 */}
+                {isAdmin && (selectedPost.phone || selectedPost.kakao) && (
+                  <div className="mb-8 p-6 bg-[#0a0505] border border-amber-900/30 text-stone-300 text-sm tracking-widest">
+                    <div className="font-bold text-amber-600/80 mb-4 flex items-center gap-2">
+                      <span>👤</span> 의뢰인 연락망 (관리자 전용)
+                    </div>
+                    <div className="space-y-2 opacity-80">
+                      {selectedPost.phone && <div>📞 전화번호: {selectedPost.phone}</div>}
+                      {selectedPost.kakao && <div>💬 카카오톡: {selectedPost.kakao}</div>}
+                    </div>
+                  </div>
+                )}
+
                 <div className="whitespace-pre-wrap min-h-[250px] text-lg leading-loose opacity-80 font-light">
                   {selectedPost.content}
                 </div>
                 
-                {/* 탐정 답변 영역 */}
                 <div className={`mt-20 p-8 md:p-12 border-t border-stone-800 ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#f0ece1]'}`}>
                   <h3 className={`text-xl font-bold mb-8 flex items-center gap-3 ${accentText} tracking-widest uppercase`}>
                     <span className="text-2xl">🖋</span> 탐정의 회신
@@ -303,10 +329,9 @@ export default function App() {
             </div>
           )}
 
-          {/* 설정 */}
           {viewMode === 'settings' && isAdmin && (
             <div className="max-w-2xl mx-auto mt-16 p-12 border border-stone-800 luxury-shadow bg-[#0f0f0f]">
-              <h2 className="text-2xl font-bold mb-10 border-b border-stone-800 pb-5 tracking-widest uppercase">사무소 환경 설정</h2>
+              <h2 className="text-2xl font-bold mb-10 border-b border-stone-800 pb-5 tracking-widest uppercase text-stone-200">사무소 환경 설정</h2>
               
               <div className="space-y-10">
                 <div>
@@ -319,7 +344,6 @@ export default function App() {
                   />
                 </div>
 
-                {/* 📢 공지사항 설정 칸 추가 */}
                 <div>
                   <label className={`block text-sm font-bold mb-3 tracking-widest ${accentText} uppercase`}>사무소 공지사항 (자유 양식)</label>
                   <p className="text-xs opacity-40 mb-3 tracking-wider">메인 화면에 노출될 공지사항입니다. 줄바꿈을 포함하여 자유롭게 작성하세요.</p>
@@ -362,7 +386,6 @@ export default function App() {
 
         </div>
 
-        {/* 🕵🏻‍♂️ 은신 로그인 영역 */}
         {!isAdmin && (
           <form 
             onSubmit={handleAdminLogin} 
