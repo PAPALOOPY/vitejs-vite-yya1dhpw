@@ -202,8 +202,8 @@ export default function App() {
                   >
                     <span className="w-20">
                       {post.reply ? 
-                        <span className="text-xs bg-stone-800 text-stone-300 px-3 py-1 border border-stone-700">종결</span> : 
-                        <span className="text-xs bg-amber-900/20 text-amber-500/80 border border-amber-900/30 px-3 py-1">수사중</span>
+                        <span className="text-xs bg-stone-800 text-stone-400 px-3 py-1 border border-stone-700">종결</span> : 
+                        <span className="text-xs bg-amber-900/20 text-amber-400/80 border border-amber-900/30 px-3 py-1">수사중</span>
                       }
                     </span>
                     <span className="flex-1 font-bold text-lg tracking-wide group-hover:text-amber-500/90 transition-colors">{post.title}</span>
