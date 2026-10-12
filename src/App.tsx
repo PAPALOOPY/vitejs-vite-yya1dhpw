@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
-  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
+  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 너의 고민을 해결할게');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [announcement, setAnnouncement] = useState(() => localStorage.getItem('announcement') || '방문해 주셔서 감사합니다.\n이곳은 기밀이 철저히 보장되는 탐정 사무소입니다.\n\n허위 의뢰는 정중히 사양합니다.');
   
@@ -177,14 +177,14 @@ export default function App() {
                 <h2 className="text-2xl font-bold tracking-widest uppercase">사건 기록부</h2>
                 <button 
                   onClick={() => navigate('write')} 
-                  className={`bg-stone-800 hover:bg-stone-800 text-amber-500/90 px-5 py-2 luxury-shadow transition-all border border-stone-400/50 tracking-widest whitespace-nowrap shrink-0`}
+                  className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-8 py-3 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0`}
                 >
                   ✉️ 새 의뢰 접수
                 </button>
               </div>
               
               <div className="space-y-4">
-                <div className="flex px-6 py-3 opacity-80 text-xs tracking-widest border-b border-stone-500 mb-3 uppercase">
+                <div className="flex px-6 py-3 opacity-60 text-xs tracking-widest border-b border-stone-800 mb-5 uppercase">
                   <span className="w-20">상태</span>
                   <span className="flex-1">사건명 (기밀)</span>
                   <span className="w-24 text-right">보안등급</span>
@@ -199,7 +199,7 @@ export default function App() {
                   >
                     <span className="w-20">
                       {post.reply ? 
-                        <span className="text-xs bg-stone-800 text-stone-300 px-5 py-1 border border-stone-700">종결</span> : 
+                        <span className="text-xs bg-stone-800 text-stone-400 px-3 py-1 border border-stone-700">종결</span> : 
                         <span className="text-xs bg-amber-900/20 text-amber-500/80 border border-amber-900/30 px-3 py-1">수사중</span>
                       }
                     </span>
