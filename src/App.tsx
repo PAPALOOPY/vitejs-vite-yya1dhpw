@@ -257,7 +257,7 @@ export default function App() {
                   <label className={`block text-sm tracking-widest font-bold mb-3 ${accentText} uppercase`}>사건 제목</label>
                   <input 
                     type="text" 
-                    placeholder="예) 누군가 제 뒤를 쫓고 있습니다." 
+                    placeholder="예) 직장상사의 괴롭힘, 헤어진 연인의 스토킹 등." 
                     required 
                     value={newPost.title} 
                     onChange={e => setNewPost({...newPost, title: e.target.value})} 
