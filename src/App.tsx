@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 export default function App() {
-  // 💾 브라우저 기억 장치에서 설정값을 불러옵니다. (새로고침해도 안 날아감)
+  // 💾 브라우저 기억 장치에서 설정값을 불러옵니다. (공지사항 추가됨)
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
-  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 너의 고민을 해결할게');
+  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [announcement, setAnnouncement] = useState(() => localStorage.getItem('announcement') || '방문해 주셔서 감사합니다.\n이곳은 기밀이 철저히 보장되는 탐정 사무소입니다.\n\n허위 의뢰는 정중히 사양합니다.');
   
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminInput, setAdminInput] = useState(''); 
@@ -23,7 +24,8 @@ export default function App() {
     localStorage.setItem('adminPassword', adminPassword);
     localStorage.setItem('siteTitle', siteTitle);
     localStorage.setItem('theme', theme);
-  }, [adminPassword, siteTitle, theme]);
+    localStorage.setItem('announcement', announcement);
+  }, [adminPassword, siteTitle, theme, announcement]);
 
   // 🕵️‍♂️ 숨겨진 로그인 처리 (엔터키 쳤을 때 작동)
   const handleAdminLogin = (e: React.FormEvent) => {
@@ -86,7 +88,6 @@ export default function App() {
   const cardClass = isDark ? 'bg-[#141414] border-stone-800' : 'bg-white border-stone-300';
   const inputClass = isDark ? 'bg-[#0a0a0a] border-stone-700 text-stone-200' : 'bg-[#faf9f6] border-stone-300 text-stone-900';
   const accentText = isDark ? 'text-amber-600/80' : 'text-amber-800';
-  const accentBorder = isDark ? 'border-amber-600/30' : 'border-amber-800/30';
 
   return (
     <>
@@ -106,10 +107,10 @@ export default function App() {
       <div className={`min-h-screen ${bgClass} ${textClass} detective-font relative selection:bg-amber-900/40`}>
         {isDark && <div className="absolute inset-0 bg-vignette pointer-events-none"></div>}
 
-        <div className="max-w-5xl mx-auto p-6 md:p-10 relative z-10">
+        <div className="max-w-4xl mx-auto p-6 md:p-10 relative z-10">
           
-          {/* 헤더 (관리자 메뉴 가로 한 줄 고정) */}
-          <header className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 mb-16 border-b border-stone-700/50 pb-8">
+          {/* 헤더 */}
+          <header className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6 mb-12 border-b border-stone-700/50 pb-8">
             <div className="cursor-pointer text-center md:text-left whitespace-nowrap" onClick={() => setViewMode('list')}>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-widest text-stone-100 drop-shadow-md flex justify-center md:justify-start items-center gap-4">
                 <span className="text-4xl opacity-80">🕵🏻‍♂️</span> 
@@ -128,11 +129,23 @@ export default function App() {
             )}
           </header>
 
-          {/* 게시판 목록 */}
+          {/* 게시판 목록 & 공지사항 */}
           {viewMode === 'list' && (
-            <div className="max-w-4xl mx-auto">
+            <div>
+              {/* 📢 공지사항 영역 (새 의뢰 접수 버튼 위) */}
+              <div className={`mb-10 p-6 md:p-8 border ${cardClass} luxury-shadow relative overflow-hidden`}>
+                <div className="absolute top-0 left-0 w-1 h-full bg-amber-700/50"></div>
+                <h3 className={`text-sm font-bold mb-4 tracking-widest ${accentText} flex items-center gap-2 uppercase`}>
+                  <span>📢</span> 사무소 공지사항
+                </h3>
+                {/* whitespace-pre-wrap 속성으로 줄바꿈을 완벽하게 유지합니다 */}
+                <p className="whitespace-pre-wrap text-sm md:text-base leading-relaxed opacity-80 font-light text-stone-300">
+                  {announcement}
+                </p>
+              </div>
+
               <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h2 className={`text-2xl font-bold tracking-widest border-l-2 ${accentBorder} pl-4 uppercase`}>사건 기록부</h2>
+                <h2 className="text-2xl font-bold tracking-widest uppercase">사건 기록부</h2>
                 <button 
                   onClick={() => setViewMode('write')} 
                   className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-8 py-3 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0`}
@@ -306,6 +319,17 @@ export default function App() {
                   />
                 </div>
 
+                {/* 📢 공지사항 설정 칸 추가 */}
+                <div>
+                  <label className={`block text-sm font-bold mb-3 tracking-widest ${accentText} uppercase`}>사무소 공지사항 (자유 양식)</label>
+                  <p className="text-xs opacity-40 mb-3 tracking-wider">메인 화면에 노출될 공지사항입니다. 줄바꿈을 포함하여 자유롭게 작성하세요.</p>
+                  <textarea 
+                    value={announcement} 
+                    onChange={e => setAnnouncement(e.target.value)} 
+                    className={`w-full p-5 h-32 border ${inputClass} resize-none leading-relaxed`} 
+                  />
+                </div>
+
                 <div>
                   <label className={`block text-sm font-bold mb-3 tracking-widest ${accentText} uppercase`}>관리자(탐정) 비밀번호 변경</label>
                   <p className="text-xs opacity-40 mb-3 tracking-wider">우측 하단 로그인 시 사용할 새 비밀번호를 입력하세요.</p>
@@ -338,7 +362,7 @@ export default function App() {
 
         </div>
 
-        {/* 🕵🏻‍♂️ 아무것도 보이지 않는 완벽한 은신 로그인 영역 */}
+        {/* 🕵🏻‍♂️ 은신 로그인 영역 */}
         {!isAdmin && (
           <form 
             onSubmit={handleAdminLogin} 
@@ -348,8 +372,7 @@ export default function App() {
               type="password" 
               value={adminInput}
               onChange={(e) => setAdminInput(e.target.value)}
-              // 글자색, 커서(깜빡이는 선), 배경색 모두 투명하게 처리하여 100% 감춤
-              className="w-16 bg-transparent text-transparent border-none outline-none caret-transparent selection:bg-transparent" 
+              className="w-32 bg-transparent text-transparent caret-transparent border-none outline-none focus:text-stone-600 focus:caret-stone-600 transition-colors placeholder-transparent selection:bg-transparent" 
               autoComplete="off"
             />
           </form>
