@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem('adminPassword') || 'admin123');
-  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 너의 고민을 해결할게');
+  const [siteTitle, setSiteTitle] = useState(() => localStorage.getItem('siteTitle') || '너고해 : 탐정 사무소');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [announcement, setAnnouncement] = useState(() => localStorage.getItem('announcement') || '방문해 주셔서 감사합니다.\n이곳은 기밀이 철저히 보장되는 탐정 사무소입니다.\n\n허위 의뢰는 정중히 사양합니다.');
   
@@ -25,7 +25,6 @@ export default function App() {
   const [inputPassword, setInputPassword] = useState('');
   const [replyContent, setReplyContent] = useState('');
 
-  // 💾 설정이나 게시글 영구 저장
   useEffect(() => {
     localStorage.setItem('adminPassword', adminPassword);
     localStorage.setItem('siteTitle', siteTitle);
@@ -34,17 +33,13 @@ export default function App() {
     localStorage.setItem('detectivePosts', JSON.stringify(posts));
   }, [adminPassword, siteTitle, theme, announcement, posts]);
 
-  // 🔄 브라우저 '뒤로 가기' 버튼 완벽 지원을 위한 마법의 코드
   useEffect(() => {
-    // 처음에 홈페이지에 들어왔을 때 기본 상태를 기록합니다.
     window.history.replaceState({ view: 'list' }, '', '');
-
-    // 사용자가 뒤로 가기를 눌렀을 때 실행되는 함수
     const handlePopState = (e: PopStateEvent) => {
       if (e.state && e.state.view) {
-        setViewMode(e.state.view); // 기록된 이전 화면으로 돌려줍니다.
+        setViewMode(e.state.view);
       } else {
-        setViewMode('list'); // 꼬였을 땐 무조건 목록으로!
+        setViewMode('list'); 
       }
     };
     
@@ -52,7 +47,6 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // 🚀 화면을 이동할 때마다 브라우저 방문 기록에 발자국을 남깁니다.
   const navigate = (mode: string) => {
     window.history.pushState({ view: mode }, '', '');
     setViewMode(mode);
@@ -102,7 +96,8 @@ export default function App() {
   };
 
   const submitReply = () => {
-    const updatedPosts = posts.map(p => 
+    // 💡 에러 해결: p에 any 타입 명시
+    const updatedPosts = posts.map((p: any) => 
       p.id === selectedPost.id ? { ...p, reply: replyContent } : p
     );
     setPosts(updatedPosts);
@@ -112,7 +107,8 @@ export default function App() {
 
   const deletePost = (id: number) => {
     if (window.confirm('이 사건 기록을 영구적으로 말소하시겠습니까? (복구 불가)')) {
-      const updatedPosts = posts.filter(p => p.id !== id);
+      // 💡 에러 해결: p에 any 타입 명시
+      const updatedPosts = posts.filter((p: any) => p.id !== id);
       setPosts(updatedPosts);
       navigate('list');
       setSelectedPost(null);
@@ -181,20 +177,21 @@ export default function App() {
                 <h2 className="text-2xl font-bold tracking-widest uppercase">사건 기록부</h2>
                 <button 
                   onClick={() => navigate('write')} 
-                  className={`bg-stone-900 hover:bg-stone-800 text-amber-500/90 px-8 py-3 luxury-shadow transition-all border border-stone-700/50 tracking-widest whitespace-nowrap shrink-0`}
+                  className={`bg-stone-800 hover:bg-stone-800 text-amber-500/90 px-5 py-2 luxury-shadow transition-all border border-stone-400/50 tracking-widest whitespace-nowrap shrink-0`}
                 >
                   ✉️ 새 의뢰 접수
                 </button>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex px-6 py-2 opacity-8 text-xs tracking-widest border-b border-stone-500 mb-3 uppercase">
+              <div className="space-y-4">
+                <div className="flex px-6 py-3 opacity-80 text-xs tracking-widest border-b border-stone-500 mb-3 uppercase">
                   <span className="w-20">상태</span>
                   <span className="flex-1">사건명 (기밀)</span>
                   <span className="w-24 text-right">보안등급</span>
                 </div>
 
-                {posts.map(post => (
+                {/* 💡 에러 해결: post에 any 타입 명시 */}
+                {posts.map((post: any) => (
                   <div 
                     key={post.id} 
                     onClick={() => openPost(post)} 
@@ -202,8 +199,8 @@ export default function App() {
                   >
                     <span className="w-20">
                       {post.reply ? 
-                        <span className="text-xs bg-stone-800 text-stone-400 px-3 py-1 border border-stone-700">종결</span> : 
-                        <span className="text-xs bg-amber-900/20 text-amber-400/80 border border-amber-900/30 px-3 py-1">수사중</span>
+                        <span className="text-xs bg-stone-800 text-stone-300 px-5 py-1 border border-stone-700">종결</span> : 
+                        <span className="text-xs bg-amber-900/20 text-amber-500/80 border border-amber-900/30 px-3 py-1">수사중</span>
                       }
                     </span>
                     <span className="flex-1 font-bold text-lg tracking-wide group-hover:text-amber-500/90 transition-colors">{post.title}</span>
