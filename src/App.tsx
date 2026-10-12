@@ -4,7 +4,7 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminInput, setAdminInput] = useState(''); // 우측 하단 로그인용 입력값
   const [adminPassword, setAdminPassword] = useState('admin123'); // 실제 관리자 비밀번호
-  const [siteTitle, setSiteTitle] = useState('너고해 : 탐정 사무소');
+  const [siteTitle, setSiteTitle] = useState('너고해 : 너의 모든 고민을 해결할게');
   const [theme, setTheme] = useState('dark');
   
   const [posts, setPosts] = useState([
