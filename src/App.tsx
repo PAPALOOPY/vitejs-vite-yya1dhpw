@@ -188,7 +188,7 @@ export default function App() {
               </div>
               
               <div className="space-y-2">
-                <div className="flex px-6 py-2 opacity-8 text-xs tracking-widest border-b border-stone-600 mb-3 uppercase">
+                <div className="flex px-6 py-2 opacity-8 text-xs tracking-widest border-b border-stone-500 mb-3 uppercase">
                   <span className="w-20">상태</span>
                   <span className="flex-1">사건명 (기밀)</span>
                   <span className="w-24 text-right">보안등급</span>
